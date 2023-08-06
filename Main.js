@@ -13,7 +13,7 @@ app.get("/", (req, res) => {
 
 const io = new SocketIOServer(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://experimental-chat-app.netlify.app"],
   },
 });
 
@@ -27,6 +27,7 @@ io.on("connect", (socket) => {
   socket.on("peer-user", (peerid) => {
     Db.setItem(socket.id, { peerid });
     io.emit("active-users", Db.getAll());
+    io.emit("user-join", { [socket.id]: { peerid } });
     console.log("DATABASE USERS", Db.getAll());
   });
 
@@ -34,6 +35,7 @@ io.on("connect", (socket) => {
     Db.removeBySocketId(socket.id);
     console.log("Current Users", Db.getAll());
     io.emit("active-users", Db.getAll());
+    io.emit("user-exit", socket.id);
   });
 });
 
