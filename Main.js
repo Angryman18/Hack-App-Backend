@@ -3,6 +3,7 @@ import express from "express";
 import http from "http";
 import { Server as SocketIOServer } from "socket.io";
 import Db from "./Database.js";
+import { STATUS, EVENTS } from "./const.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -25,17 +26,20 @@ io.on("connect", (socket) => {
   });
 
   socket.on("peer-user", (peerid) => {
-    Db.setItem(socket.id, { peerid });
-    io.emit("active-users", Db.getAll());
-    io.emit("user-join", { [socket.id]: { peerid } });
+    Db.setItem(socket.id, { peerid, status: STATUS.IDLE });
+    socket.emit("active-users", Db.getAll());
+    socket.broadcast.emit("user-join", { [socket.id]: { peerid, status: STATUS.IDLE } });
     console.log("DATABASE USERS", Db.getAll());
+  });
+
+  socket.on(EVENTS.CALLING_USER, (callObject) => {
+    io.to(callObject.socketid).emit(EVENTS.INCOMING_CALL, callObject);
   });
 
   socket.on("disconnect", () => {
     Db.removeBySocketId(socket.id);
     console.log("Current Users", Db.getAll());
-    io.emit("active-users", Db.getAll());
-    io.emit("user-exit", socket.id);
+    socket.broadcast.emit("user-exit", socket.id);
   });
 });
 
