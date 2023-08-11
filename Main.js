@@ -36,6 +36,15 @@ io.on("connect", (socket) => {
     io.to(callObject.socketid).emit(EVENTS.INCOMING_CALL, callObject);
   });
 
+  socket.on(EVENTS.CALL_ANSWERED, (callObject) => {
+    console.log("Call Object is ", callObject);
+    // callObject.socketid // who is receiving the call
+    // callObject.caller // who is calling
+    const { caller, socketid } = callObject;
+    const callerObject = Db.updateStatus(caller, socketid, "in call");
+    io.emit(EVENTS.UPDATE_USER_STATUS, callerObject);
+  });
+
   socket.on("disconnect", () => {
     Db.removeBySocketId(socket.id);
     console.log("Current Users", Db.getAll());
