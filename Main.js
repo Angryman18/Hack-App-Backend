@@ -37,12 +37,27 @@ io.on("connect", (socket) => {
   });
 
   socket.on(EVENTS.CALL_ANSWERED, (callObject) => {
-    console.log("Call Object is ", callObject);
+    // console.log("Call Object is ", callObject);
     // callObject.socketid // who is receiving the call
     // callObject.caller // who is calling
-    const { caller, socketid } = callObject;
-    const callerObject = Db.updateStatus(caller, socketid, "in call");
+    const { caller = "", socketid = "" } = callObject ?? {};
+    if (!caller || !socketid) return;
+    const callerObject = Db.updateStatus(caller, socketid, true, "in call");
     io.emit(EVENTS.UPDATE_USER_STATUS, callerObject);
+  });
+
+  socket.on(EVENTS.CALL_DISCONNECT, (object) => {
+    const { callId, socketId } = object;
+    const notifyuser = Db.findToBeNotifiedUser(socketId, callId);
+    if (!callId || !socketId) return;
+    const { socketIds = [] } = Db.getByCallId(callId);
+    if (!socketIds.length) return;
+    socketIds.push(false);
+    socketIds.push("idle");
+    const callerObject = Db.updateStatus(...socketIds);
+    io.emit(EVENTS.UPDATE_USER_STATUS, callerObject);
+    Db.resetCallDatabase(callId);
+    io.to(notifyuser).emit(EVENTS.USER_LEFT);
   });
 
   socket.on("disconnect", () => {
