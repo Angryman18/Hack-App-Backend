@@ -5,7 +5,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "nodemon Main.js"
+    "dev": "nodemon Main.js",
+    "start": "node Main.js"
   },
   "dependencies": {
     "express": "^4.18.2",
