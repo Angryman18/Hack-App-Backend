@@ -27,8 +27,8 @@ class Database {
 
   updateStatus = (...args) => {
     // socketId1, socketId2, true, 'in call'
-    const status = args.at(-1);
-    const callId = args.at(-2) ? uuid() : null;
+    const status = args?.at(-1);
+    const callId = args?.at(-2) ? uuid() : null;
     args[2] = callId; // upateing
     this.updateStatusBySocketIds.apply(this, args); // socketId1, socketId2, callId, 'in call'
 
