@@ -60,6 +60,10 @@ io.on("connect", (socket) => {
     io.to(notifyuser).emit(EVENTS.USER_LEFT);
   });
 
+  socket.on(EVENTS.CALL_REJECTED, (socketId) => {
+    io.to(socketId).emit(EVENTS.CALL_REJECTED);
+  });
+
   socket.on("disconnect", () => {
     Db.removeBySocketId(socket.id);
     console.log("Current Users", Db.getAll());
