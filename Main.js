@@ -40,24 +40,33 @@ io.on("connect", (socket) => {
     // console.log("Call Object is ", callObject);
     // callObject.socketid // who is receiving the call
     // callObject.caller // who is calling
-    const { caller = "", socketid = "" } = callObject ?? {};
-    if (!caller || !socketid) return;
-    const callerObject = Db.updateStatus(caller, socketid, true, "in call");
-    io.emit(EVENTS.UPDATE_USER_STATUS, callerObject);
+    try {
+
+      const { caller = "", socketid = "" } = callObject ?? {};
+      if (!caller || !socketid) return;
+      const callerObject = Db.updateStatus(caller, socketid, true, "in call");
+      io.emit(EVENTS.UPDATE_USER_STATUS, callerObject);
+    } catch(err) {
+      console.log("error", err)
+    }
   });
 
   socket.on(EVENTS.CALL_DISCONNECT, (object) => {
-    const { callId, socketId } = object;
-    const notifyuser = Db.findToBeNotifiedUser(socketId, callId);
-    if (!callId || !socketId) return;
-    const { socketIds = [] } = Db.getByCallId(callId);
-    if (!socketIds.length) return;
-    socketIds.push(false);
-    socketIds.push("idle");
-    const callerObject = Db.updateStatus(...socketIds);
-    io.emit(EVENTS.UPDATE_USER_STATUS, callerObject);
-    Db.resetCallDatabase(callId);
-    io.to(notifyuser).emit(EVENTS.USER_LEFT);
+    try {
+      const { callId, socketId } = object;
+      const notifyuser = Db.findToBeNotifiedUser(socketId, callId);
+      if (!callId || !socketId) return;
+      const { socketIds = [] } = Db.getByCallId(callId);
+      if (!socketIds.length) return;
+      socketIds.push(false);
+      socketIds.push("idle");
+      const callerObject = Db.updateStatus(...socketIds);
+      io.emit(EVENTS.UPDATE_USER_STATUS, callerObject);
+      Db.resetCallDatabase(callId);
+      io.to(notifyuser).emit(EVENTS.USER_LEFT);
+    } catch (err) {
+      console.log("Error Happended", err);
+    }
   });
 
   socket.on(EVENTS.CALL_REJECTED, (socketId) => {
@@ -65,9 +74,14 @@ io.on("connect", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    Db.removeBySocketId(socket.id);
-    console.log("Current Users", Db.getAll());
-    socket.broadcast.emit("user-exit", socket.id);
+    try {
+
+      Db.removeBySocketId(socket.id);
+      console.log("Current Users", Db.getAll());
+      socket.broadcast.emit("user-exit", socket.id);
+    } catch(err) {
+      console.log("Error Happended", err);
+    }
   });
 });
 

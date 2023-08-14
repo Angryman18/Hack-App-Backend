@@ -6,7 +6,7 @@ class Database {
   }
 
   getBySocketId = (item) => {
-    return this.db[item] ?? "";
+    return this.db[item] ?? {};
   };
 
   getByCallId = (callId) => this.callDb.get(callId) ?? {};
