@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
 
 const io = new SocketIOServer(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://experimental-chat-app.netlify.app"],
+    origin: ["http://localhost:3000", "https://experimental-chat-app.netlify.app", "https://chat.engine-app.com"],
   },
 });
 
