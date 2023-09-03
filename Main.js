@@ -22,14 +22,14 @@ const room = "room";
 
 io.on("connect", (socket) => {
   socket.on("user-landed", (id) => {
-    console.log("User has Landed", socket.id, id);
+    console.log("User has Landed", socket.id, id, new Date().toString());
   });
 
   socket.on("peer-user", (peerid) => {
     Db.setItem(socket.id, { peerid, status: STATUS.IDLE });
-    socket.emit("active-users", Db.getAll());
+    socket.emit("active-users", Db.getAll(), new Date().toString());
     socket.broadcast.emit("user-join", { [socket.id]: { peerid, status: STATUS.IDLE } });
-    console.log("DATABASE USERS", Db.getAll());
+    console.log("DATABASE USERS", Db.getAll(), new Date().toString());
   });
 
   socket.on(EVENTS.CALLING_USER, (callObject) => {
@@ -77,7 +77,7 @@ io.on("connect", (socket) => {
     try {
 
       Db.removeBySocketId(socket.id);
-      console.log("Current Users", Db.getAll());
+      console.log("Current Users", Db.getAll(), new Date().toString());
       socket.broadcast.emit("user-exit", socket.id);
     } catch(err) {
       console.log("Error Happended", err);
