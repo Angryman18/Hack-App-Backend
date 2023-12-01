@@ -3,10 +3,14 @@ import express from "express";
 import http from "http";
 import { Server as SocketIOServer } from "socket.io";
 import Db from "./Database.js";
+import morgan from "morgan"
 import { STATUS, EVENTS } from "./const.js";
 
 const app = express();
 const server = http.createServer(app);
+
+
+app.use(morgan("dev"))
 
 app.get("/", (req, res) => {
   res.status(200).json({ Name: "hello World" });
